@@ -18,9 +18,11 @@
 #include <gpio.h>
 #include <environment.h>
 #include <linux/clk.h>
+#include <linux/nvmem-consumer.h>
 #include <dt-bindings/clock/vf610-clock.h>
 #include <envfs.h>
 #include <mach/bbu.h>
+#include <net.h>
 
 
 static int expose_signals(const struct gpio *signals,
@@ -114,6 +116,67 @@ static int zii_vf610_dev_print_clocks(void)
 	return 0;
 }
 late_initcall(zii_vf610_dev_print_clocks);
+
+static int zii_vf610_cfu1_ethernet_init(void)
+{
+	char const * const ALIASES[] = {
+		"ethernet0",
+		"ethernet1",
+	};
+
+	char const * const CELL_NAMES[] = {
+		"mac-address-fec0",
+		"mac-address-fec1",
+	};
+
+	struct device_node *root;
+	struct device_node *np_nvmem;
+	size_t i;
+
+	if (!of_machine_is_compatible("zii,vf610cfu1"))
+		return 0;
+
+	root = of_get_root_node();
+
+	np_nvmem = of_find_node_by_name(NULL, "at24c04@54");
+	if (WARN_ON(!np_nvmem))
+		return -ENOENT;
+
+	for (i = 0; i < ARRAY_SIZE(ALIASES); i++) {
+		char const * const alias = ALIASES[i];
+		char const * const cell_name = CELL_NAMES[i];
+		struct device_node *np;
+		u8 mac[ETH_ALEN];
+		u8 *data;
+		size_t j;
+
+		np = of_find_node_by_alias(root, alias);
+		if (!np) {
+			pr_warn("Failed to find %s\n", alias);
+			continue;
+		}
+
+		data = nvmem_cell_get_and_read(np_nvmem, cell_name, ETH_ALEN);
+		if (IS_ERR(data)) {
+			pr_warn("Failed to read %s\n", cell_name);
+			continue;
+		}
+
+		/*
+		 * EEPROM stores MAC address in reverse (to what we expect it
+		 * to be) byte order.
+		 */
+		for (j = 0; j < ETH_ALEN; j++)
+			mac[j] = data[ETH_ALEN - j - 1];
+
+		free(data);
+
+		of_eth_register_ethaddr(np, mac);
+	}
+
+	return 0;
+}
+late_initcall(zii_vf610_cfu1_ethernet_init);
 
 static int zii_vf610_dev_set_hostname(void)
 {
