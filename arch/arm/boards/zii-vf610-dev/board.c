@@ -171,6 +171,18 @@ static int zii_vf610_cfu1_ethernet_init(void)
 
 		free(data);
 
+		if (!is_valid_ether_addr(mac)) {
+			pr_warn("%s: MAC in nameplate appears to be invalid  "
+				"(%02x:%02x:%02x:%02x:%02x:%02x)\n", alias,
+				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+			random_ether_addr(mac);
+
+			pr_warn("%s: using randomly generated values instead "
+				"(%02x:%02x:%02x:%02x:%02x:%02x)\n", alias,
+				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		}
+
 		of_eth_register_ethaddr(np, mac);
 	}
 
