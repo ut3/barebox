@@ -117,7 +117,7 @@ static int zii_vf610_dev_print_clocks(void)
 }
 late_initcall(zii_vf610_dev_print_clocks);
 
-static int zii_vf610_cfu1_ethernet_init(void)
+static int zii_vf610_cfu1_spu3_ethernet_init(void)
 {
 	char const * const ALIASES[] = {
 		"ethernet0",
@@ -129,16 +129,33 @@ static int zii_vf610_cfu1_ethernet_init(void)
 		"mac-address-fec1",
 	};
 
+	static const struct {
+		const char *compatible;
+		const char *node_name;
+	} nvmem_node_name[] = {
+		{ "zii,vf610spu3", "at24c04@50" },
+		{ "zii,vf610cfu1", "at24c04@54" },
+	};
+
 	struct device_node *root;
 	struct device_node *np_nvmem;
 	size_t i;
 
-	if (!of_machine_is_compatible("zii,vf610cfu1"))
+	if (!of_machine_is_compatible("zii,vf610cfu1") &&
+		!of_machine_is_compatible("zii,vf610spu3"))
 		return 0;
 
 	root = of_get_root_node();
+	np_nvmem = NULL;
 
-	np_nvmem = of_find_node_by_name(NULL, "at24c04@54");
+	for (i = 0; i < ARRAY_SIZE(nvmem_node_name); i++) {
+		if (of_machine_is_compatible(nvmem_node_name[i].compatible)) {
+			np_nvmem = of_find_node_by_name(NULL,
+						nvmem_node_name[i].node_name);
+			break;
+		}
+	}
+
 	if (WARN_ON(!np_nvmem))
 		return -ENOENT;
 
@@ -188,7 +205,7 @@ static int zii_vf610_cfu1_ethernet_init(void)
 
 	return 0;
 }
-late_initcall(zii_vf610_cfu1_ethernet_init);
+late_initcall(zii_vf610_cfu1_spu3_ethernet_init);
 
 static int zii_vf610_dev_set_hostname(void)
 {
