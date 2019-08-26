@@ -117,7 +117,7 @@ static int zii_vf610_dev_print_clocks(void)
 }
 late_initcall(zii_vf610_dev_print_clocks);
 
-static int zii_vf610_cfu1_spu3_ethernet_init(void)
+static int zii_vf610_dev_ethernet_init(void)
 {
 	char const * const ALIASES[] = {
 		"ethernet0",
@@ -135,6 +135,7 @@ static int zii_vf610_cfu1_spu3_ethernet_init(void)
 	} nvmem_node_name[] = {
 		{ "zii,vf610spu3", "at24c04@50" },
 		{ "zii,vf610cfu1", "at24c04@54" },
+		{ "zii,vf610scu4-aib", "at24c04@50" },
 	};
 
 	struct device_node *root;
@@ -142,7 +143,8 @@ static int zii_vf610_cfu1_spu3_ethernet_init(void)
 	size_t i;
 
 	if (!of_machine_is_compatible("zii,vf610cfu1") &&
-		!of_machine_is_compatible("zii,vf610spu3"))
+		!of_machine_is_compatible("zii,vf610spu3") &&
+		!of_machine_is_compatible("zii,vf610scu4-aib"))
 		return 0;
 
 	root = of_get_root_node();
@@ -205,7 +207,7 @@ static int zii_vf610_cfu1_spu3_ethernet_init(void)
 
 	return 0;
 }
-late_initcall(zii_vf610_cfu1_spu3_ethernet_init);
+late_initcall(zii_vf610_dev_ethernet_init);
 
 static int zii_vf610_dev_set_hostname(void)
 {

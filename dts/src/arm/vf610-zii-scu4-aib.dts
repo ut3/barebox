@@ -527,6 +527,85 @@
 	at24c04@50 {
 		compatible = "atmel,24c04";
 		reg = <0x50>;
+		label= "nameplace";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		nvmem-cells =
+			<&lru_part_number>,
+			<&lru_serial_number>,
+			<&lru_date_of_manufacture>,
+			<&mod>,
+			<&board_part_number>,
+			<&board_serial_number>,
+			<&board_initial_date_of_manufacture>,
+			<&board_initial_revision>,
+			<&board_updated_date_of_manufacture>,
+			<&board_updated_revision>,
+			<&mac_address_fec0>,
+			<&mac_address_fec1>;
+
+		nvmem-cell-names =
+			"lru-part-number",
+			"lru-serial-number",
+			"lru-date-of-manufacture",
+			"mod",
+			"board-part-number",
+			"board-serial-number",
+			"board-initial-date-of-manufacture",
+			"board-initial-revision",
+			"board-updated-date-of-manufacture",
+			"board-updated-revision",
+			"mac-address-fec0",
+			"mac-address-fec1";
+
+		lru_part_number: lru-part-number@00 {
+			reg = <0x00 20>;
+		};
+
+		lru_serial_number: lru-serial-number@14 {
+			reg = <0x14 10>;
+		};
+
+		lru_date_of_manufacture: lru-date-of-manufacture@1e {
+			reg = <0x1e 7>;
+		};
+
+		mod: mod@25 {
+			reg = <0x25 4>;
+		};
+
+		board_part_number: board-part-number@29 {
+			reg = <0x29 20>;
+		};
+
+		board_serial_number: board-serial-number@3d {
+			reg = <0x3d 10>;
+		};
+
+		board_initial_date_of_manufacture: board-initial-date-of-manufacture@47 {
+			reg = <0x47 5>;
+		};
+
+		board_initial_revision: board-initial-revision@4c {
+			reg = <0x4c 5>;
+		};
+
+		board_updated_date_of_manufacture: board-updated-date-of-manufacture@51 {
+			reg = <0x51 5>;
+		};
+
+		board_updated_revision: board-updated-revision@56 {
+			reg = <0x56 5>;
+		};
+
+		mac_address_fec0: mac-address-fec0@5b {
+			reg = <0x5b 6>;
+		};
+
+		mac_address_fec1: mac-address-fec1@61 {
+			reg = <0x61 6>;
+		};
 	};
 
 	at24c04@52 {
